@@ -1,0 +1,9 @@
+#!/usr/local/bin/php
+<?php
+$name = "/media/mail/".time() . ".eml";
+$fh = fopen($name, "w");
+if (!$fh) die;
+while ($buf = fread(STDIN, 8192))
+    fwrite($fh, $buf);
+fclose($fh);
+?>

@@ -1,0 +1,50 @@
+version: "3.3"
+
+services:
+
+  mysql:
+    container_name: gfl-mysql
+    image: mysql:5.7
+    volumes:
+      - ./.data/mysql:/var/lib/mysql
+    command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    expose:
+      - 3306
+    ports:
+      - 13306:3306
+
+  php:
+    container_name: gfl-php
+    links:
+      - mysql
+    build:
+      context: ./server-setting/php
+      args:
+        TIMEZONE: Europe/Kiev
+    volumes:
+      - .data/mail:/media/mail
+      - ./server-setting/php/php.ini:/usr/local/etc/php/php.ini:ro
+      - ${SYMFONY_VOLUME_PATH}:/var/www/symfony:nocopy
+    environment:
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+
+  nginx:
+    container_name: gfl-nginx
+    build: ./server-setting/nginx
+    links:
+      - php
+    ports:
+      - 1999:80
+    volumes:
+      - ${SYMFONY_VOLUME_PATH}:/var/www/symfony:nocopy
+
+volumes:
+  app-sync:
+    external: true

@@ -1,0 +1,7 @@
+.data/
+.docker-sync/
+.history/
+.idea/
+.vscode/
+
+.env
